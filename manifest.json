@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "X 未回关清理助手",
+  "version": "0.9.0",
+  "description": "核对 X 关注名单，预览未回关账号，支持限量和连续取关。",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "X 未回关清理助手"
+  }
+}

@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible extension problem
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Extension version
+    validations:
+      required: true
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Workflow
+      options: [Preview list, Scan and clean, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Attach the JSON exported by the extension after checking that it contains no information you do not want to share.

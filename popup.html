@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>X 未回关清理助手</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <h1>X 未回关清理助手</h1>
+          <p>支持分段扫描、保存名单并在操作前复核。</p>
+        </div>
+        <button id="openX" class="icon-button" type="button" title="打开 X">打开 X</button>
+      </header>
+
+      <section class="status-panel">
+        <div class="status-row">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">未运行</span>
+        </div>
+        <div class="metrics">
+          <div>
+            <span>今日已取关</span>
+            <strong id="todayDone">0</strong>
+          </div>
+          <div>
+            <span>发现未回关</span>
+            <strong id="nonFollowerCount">0</strong>
+          </div>
+          <div>
+            <span>下一轮</span>
+            <strong id="nextRun">-</strong>
+          </div>
+          <div>
+            <span>名单更新时间</span>
+            <strong id="scanTime">-</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="form">
+        <div class="field-label">工作方式</div>
+        <div class="mode-switch" role="radiogroup" aria-label="工作方式">
+          <button id="previewWorkflow" class="mode-button active" type="button" role="radio" aria-checked="true">先预览名单</button>
+          <button id="streamWorkflow" class="mode-button" type="button" role="radio" aria-checked="false">边扫边清理</button>
+        </div>
+
+        <div class="field-label">执行速度</div>
+        <div class="mode-switch" role="radiogroup" aria-label="取关模式">
+          <button id="limitedMode" class="mode-button active" type="button" role="radio" aria-checked="true">
+            限量模式
+          </button>
+          <button id="unlimitedMode" class="mode-button" type="button" role="radio" aria-checked="false">
+            不限制模式
+          </button>
+        </div>
+
+        <details class="advanced">
+          <summary>高级设置</summary>
+          <div class="advanced-content">
+        <label class="toggle-row">
+          <span><strong>允许后台运行</strong><small id="backgroundHint">切换到其他标签页后继续，并由 Chrome 唤醒下一轮</small></span>
+          <input id="backgroundRun" type="checkbox" role="switch" checked />
+        </label>
+
+        <label>
+          <span>你的用户名</span>
+          <input id="handle" type="text" placeholder="自动识别，也可手动填写" autocomplete="off" />
+        </label>
+
+        <div class="grid">
+          <label>
+            <span>每小时取关数量</span>
+            <input id="hourlyLimit" type="number" min="1" max="50" step="1" />
+          </label>
+          <label>
+            <span>24 小时最多尝试</span>
+            <input id="dailyLimit" type="number" min="1" max="500" step="1" />
+          </label>
+          <label>
+            <span>新关注观察期（天）</span>
+            <input id="graceDays" type="number" min="0" max="30" step="1" />
+          </label>
+          <label>
+            <span>最低滚动次数（按人数自动扩展）</span>
+            <input id="maxScrolls" type="number" min="20" max="3000" step="5" />
+          </label>
+          <label>
+            <span>基础间隔（秒）</span>
+            <input id="baseDelay" type="number" min="3" max="300" step="1" />
+          </label>
+          <label>
+            <span>随机增加（秒）</span>
+            <input id="extraDelay" type="number" min="0" max="300" step="1" />
+          </label>
+        </div>
+
+        <button id="recommendedDefaults" class="preset-button" type="button">使用推荐默认值</button>
+
+        <div id="riskPanel" class="risk-panel" hidden>
+          <strong>不限制模式风险很高</strong>
+          <p>会连续取关名单里的所有账号，容易触发 X 的异常行为检测、临时限流、验证码甚至封号。建议只用于小账号清单，并保持页面可见。</p>
+          <label class="confirm-row">
+            <input id="riskConfirm" type="checkbox" />
+            <span>我已了解风险，确认执行不限制取关</span>
+          </label>
+        </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="actions">
+        <button id="scanButton" class="primary" type="button">扫描未回关</button>
+        <button id="unfollowButton" class="danger" type="button">开始限流取关</button>
+        <button id="pauseButton" class="secondary" type="button" disabled>暂停</button>
+        <button id="stopButton" class="secondary" type="button" disabled>结束任务</button>
+      </section>
+
+      <details class="history-panel">
+        <summary>最近任务</summary>
+        <div id="historyList" class="history-list"></div>
+        <button id="exportDiagnostics" class="preset-button" type="button">导出诊断</button>
+      </details>
+
+      <section class="result" id="resultPanel" hidden>
+        <div class="result-head">
+          <span>账号预览</span>
+          <span id="resultCount"></span>
+        </div>
+        <div class="result-tabs">
+          <button id="pendingTab" class="active" type="button">待处理</button>
+          <button id="protectedTab" type="button">已保留</button>
+        </div>
+        <input id="resultSearch" class="result-search" type="search" placeholder="搜索用户名" autocomplete="off" />
+        <div id="resultList" class="result-list"></div>
+        <div class="pager">
+          <button id="previousPage" type="button" title="上一页">‹</button>
+          <span id="pageInfo">1 / 1</span>
+          <button id="nextPage" type="button" title="下一页">›</button>
+        </div>
+      </section>
+
+      <footer class="note" id="footerNote">
+        名单保存在本机，可直接继续使用；需要获取最新关系时点“更新名单”。
+      </footer>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
