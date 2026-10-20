@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X 未回关清理助手",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "核对 X 关注名单，预览未回关账号，支持限量和连续取关。",
   "permissions": [
     "storage",

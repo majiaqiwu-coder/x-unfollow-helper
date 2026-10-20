@@ -540,6 +540,9 @@
   async function tryUnfollow(cell, handle) {
     const task = readTask();
     assertAccount(task?.handle);
+    const protection = await chrome.storage.local.get(PROTECTED_KEY);
+    const protectedSet = new Set((protection[PROTECTED_KEY] || []).map(normalizeHandle));
+    if (protectedSet.has(handle)) return false;
     const ledger = await chrome.storage.local.get(FOLLOW_LEDGER_KEY);
     const followedAt = Number(ledger[FOLLOW_LEDGER_KEY]?.[`${task?.handle}:${handle}`] || 0);
     const graceMs = Number(task?.graceDays || 0) * 24 * 60 * 60 * 1000;
@@ -995,7 +998,9 @@
         setStatus('已暂停，进度已保存');
         return;
       }
+      clearTask();
       runtime.phase = 'idle';
+      runtime.nextRunAt = null;
       setStatus(`边扫边清理失败：${error.message}`);
       notifyPopup({ type: 'ERROR', message: error.message });
     }

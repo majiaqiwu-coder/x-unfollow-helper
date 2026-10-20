@@ -5,7 +5,7 @@ await Promise.all(required.map((file) => access(new URL(`../${file}`, import.met
 
 const manifest = JSON.parse(await readFile(new URL('../manifest.json', import.meta.url), 'utf8'));
 if (manifest.manifest_version !== 3) throw new Error('manifest_version must be 3');
-if (manifest.version !== '0.9.0') throw new Error('package and manifest versions are out of sync');
+if (manifest.version !== '0.9.1') throw new Error('package and manifest versions are out of sync');
 
 const allowedPermissions = new Set(['storage', 'tabs', 'scripting', 'alarms']);
 for (const permission of manifest.permissions || []) {
